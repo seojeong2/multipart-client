@@ -1,8 +1,6 @@
 <template>
   <div class="information">
     <p>파일 업로드</p>
-    <button @click="$refs.fileRef.click">선택</button>
-    <input type="file" @change="selectFile" multiple ref="fileRef" hidden />
   </div>
 </template>
 
@@ -13,26 +11,31 @@ export default {
     return {
       files: [],
       backendUrl: "http://localhost:8080",
+      image: "test_image",
     };
   },
   methods: {
-    async fetchFiles() {},
-    selectFile(event) {
+    async submit() {
       const formData = new FormData();
+      formData.append("image", this.image);
 
-      for (const file of event.target.files) {
-        formData.append("files", file);
+      try {
+        const { data } = await axios.post(
+          "http://localhost:8085/upload",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        console.log(data);
+      } catch (err) {
+        console.log(err);
       }
-      axios
-        .post(`${this.backendUrl}/files`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then(() => {
-          //this.fetchFiles();
-        })
-        .catch((error) => {
-          alert(error.message);
-        });
+    },
+    selectFile(file) {
+      this.image = file;
     },
   },
 };
